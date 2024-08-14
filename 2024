@@ -1,0 +1,158 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+#define SIZE 9
+
+struct Jugador {
+    string nombre;
+    int puntaje;
+};
+
+void printBoard(int board[SIZE][SIZE]) {
+    for (int i = 0; i < SIZE; ++i) {
+        if (i % 3 == 0 && i != 0) {
+            cout << "------+-------+------" << endl;
+        }
+        for (int j = 0; j < SIZE; ++j) {
+            if (j % 3 == 0 && j != 0) {
+                cout << "| ";
+            }
+            if (board[i][j] == 0) {
+                cout << ". ";
+            } else {
+                cout << board[i][j] << " ";
+            }
+        }
+        cout << endl;
+    }
+}
+
+bool isValidMove(int board[SIZE][SIZE], int row, int col, int num) {
+    for (int x = 0; x < SIZE; ++x) {
+        if (board[row][x] == num || board[x][col] == num || 
+            board[(row / 3) * 3 + x / 3][(col / 3) * 3 + x % 3] == num) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isSolved(int board[SIZE][SIZE]) {
+    for (int row = 0; row < SIZE; ++row) {
+        for (int col = 0; col < SIZE; ++col) {
+            if (board[row][col] == 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void jugar(Jugador &jugador) {
+    int board[SIZE][SIZE] = {
+        {5, 3, 0, 0, 7, 0, 0, 0, 0},
+        {6, 0, 0, 1, 9, 5, 0, 0, 0},
+        {0, 9, 8, 0, 0, 0, 0, 6, 0},
+        {8, 0, 0, 0, 6, 0, 0, 0, 3},
+        {4, 0, 0, 8, 0, 3, 0, 0, 1},
+        {7, 0, 0, 0, 2, 0, 0, 0, 6},
+        {0, 6, 0, 0, 0, 0, 2, 8, 0},
+        {0, 0, 0, 4, 1, 9, 0, 0, 5},
+        {0, 0, 0, 0, 8, 0, 0, 7, 9}
+    };
+
+    while (!isSolved(board)) {
+        printBoard(board);
+
+        int row, col, num;
+        cout << "\nIngresa la fila (1-9), columna (1-9), y el número (1-9) separados por espacios: ";
+        cin >> row >> col >> num;
+
+        // Validar entrada
+        if (row < 1 || row > 9 || col < 1 || col > 9 || num < 1 || num > 9) {
+            cout << "Entrada no válida. Intente de nuevo.\n";
+            continue;
+        }
+
+        row--; col--; // Convertir a índice de 0
+
+        if (board[row][col] != 0) {
+            cout << "Esa posición ya está ocupada. Intente de nuevo.\n";
+        } else if (!isValidMove(board, row, col, num)) {
+            cout << "Movimiento no válido. Intente de nuevo.\n";
+        } else {
+            board[row][col] = num;
+        }
+    }
+
+    cout << "\n¡Has completado el Sudoku!\n";
+    printBoard(board);
+    jugador.puntaje = 100; // Asignar puntaje al completar el Sudoku
+}
+
+void mostrarPuntajes(const vector<Jugador> &jugadores) {
+    cout << "\nPuntajes de los jugadores:\n";
+    for (const auto &jugador : jugadores) {
+        cout << jugador.nombre << ": " << jugador.puntaje << " puntos\n";
+    }
+}
+
+void mostrarCreditos() {
+    cout << "\nCréditos:\n";
+    cout << "Desarrollado por:\n";
+    cout << " - José Catagña\n";
+    
+}
+
+void menu(vector<Jugador> &jugadores) {
+    char opcion;
+
+    do {
+        cout << "\nMenu de Sudoku\n";
+        cout << "1. Jugar\n";
+        cout << "2. Puntajes\n";
+        cout << "3. Créditos\n";
+        cout << "4. Salir\n";
+        cout << "Seleccione una opción: ";
+        cin >> opcion;
+
+        switch (opcion) {
+            case '1': {
+                for (auto &jugador : jugadores) {
+                    cout << "\nJugador " << jugador.nombre << ", es tu turno.\n";
+                    jugar(jugador);
+                }
+                break;
+            }
+            case '2':
+                mostrarPuntajes(jugadores);
+                break;
+            case '3':
+                mostrarCreditos();
+                break;
+            case '4':
+                cout << "Gracias por jugar. ¡Hasta luego!\n";
+                break;
+            default:
+                cout << "Opción no válida. Por favor, intente nuevamente.\n";
+        }
+    } while (opcion != '4');
+}
+
+int main() {
+    vector<Jugador> jugadores(3);
+
+    // Solicitar nombres de los jugadores
+    for (int i = 0; i < 3; ++i) {
+        cout << "Ingrese el nombre del Jugador " << i + 1 << ": ";
+        cin >> jugadores[i].nombre;
+        jugadores[i].puntaje = 0; // Inicializar puntaje
+    }
+
+    menu(jugadores);
+
+    return 0;
+}
